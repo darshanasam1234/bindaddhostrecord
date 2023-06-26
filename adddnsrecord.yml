@@ -1,0 +1,25 @@
+- name: Manage BIND9 DNS records
+  hosts: dns
+  become: yes
+  vars:
+    dns_zone_file: /var/named/testlab.local
+    dns_record:
+      name: server100
+      type: A
+      value: 192.168.0.89
+
+  tasks:
+    - name: Add DNS record
+      lineinfile:
+        path: "{{ dns_zone_file }}"
+
+        line: "{{ dns_record.name }} IN {{ dns_record.type }} {{ dns_record.value }}"
+        
+      notify:
+        - Reload BIND
+
+  handlers:
+    - name: Reload BIND
+      service:
+        name: named
+        state: reloaded
